@@ -3,7 +3,7 @@
 var format = require('util').format;
 var spawn = require('cross-spawn').spawn;
 var path = require('path');
-var baseReporter = require('../../lib/reporters/base');
+var Base = require('../../lib/reporters/base');
 
 module.exports = {
   /**
@@ -132,7 +132,7 @@ module.exports = {
   /**
    * regular expression used for splitting lines based on new line / dot symbol.
    */
-  splitRegExp: new RegExp('[\\n' + baseReporter.symbols.dot + ']+'),
+  splitRegExp: new RegExp('[\\n' + Base.symbols.dot + ']+'),
 
   /**
    * Invokes the mocha binary. Accepts an array of additional command line args

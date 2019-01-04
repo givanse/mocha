@@ -1,6 +1,7 @@
 'use strict';
 
 var Mocha = require('../../');
+var Runner = Mocha.Runner;
 
 var mocha = new Mocha({
   ui: 'bdd',
@@ -25,6 +26,6 @@ mocha
   .run(function() {
     console.log('done');
   })
-  .on('pass', function(test) {
+  .on(Runner.constants.RUNNER_EVENT_PASS, function(test) {
     // console.log('... %s', test.title);
   });

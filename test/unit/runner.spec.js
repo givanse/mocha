@@ -7,6 +7,7 @@ var Test = mocha.Test;
 var Hook = mocha.Hook;
 var path = require('path');
 var noop = mocha.utils.noop;
+var constants = Runner.constants;
 
 describe('Runner', function() {
   var suite;
@@ -103,7 +104,7 @@ describe('Runner', function() {
       var test = new Test('im a test', noop);
       runner.checkGlobals();
       global.foo = 'bar';
-      runner.on('fail', function(_test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(_test, err) {
         expect(_test, 'to be', test);
         expect(err.message, 'to be', 'global leak detected: foo');
         delete global.foo;
@@ -116,7 +117,7 @@ describe('Runner', function() {
       var doneCalled = false;
       runner.globals('good');
       global.bad = 1;
-      runner.on('fail', function() {
+      runner.on(constants.RUNNER_EVENT_FAIL, function() {
         delete global.bad;
         done();
         doneCalled = true;
@@ -157,7 +158,7 @@ describe('Runner', function() {
       runner.checkGlobals();
       global.foo = 'bar';
       global.bar = 'baz';
-      runner.on('fail', function(_test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(_test, err) {
         expect(_test, 'to be', test);
         expect(err.message, 'to be', 'global leaks detected: foo, bar');
         delete global.foo;
@@ -191,7 +192,7 @@ describe('Runner', function() {
 
       global.foo = 'bar';
       global.bar = 'baz';
-      runner.on('fail', function(test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(test, err) {
         expect(test.title, 'to be', 'im a test about lions');
         expect(err.message, 'to be', 'global leak detected: bar');
         delete global.foo;
@@ -202,7 +203,7 @@ describe('Runner', function() {
 
     it('should emit "fail" when a global beginning with d is introduced', function(done) {
       global.derp = 'bar';
-      runner.on('fail', function() {
+      runner.on(constants.RUNNER_EVENT_FAIL, function() {
         delete global.derp;
         done();
       });
@@ -242,7 +243,7 @@ describe('Runner', function() {
     it('should emit "fail"', function(done) {
       var test = new Test('some other test', noop);
       var err = {};
-      runner.on('fail', function(test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(test, err) {
         expect(test, 'to be', test);
         expect(err, 'to be', err);
         done();
@@ -253,7 +254,7 @@ describe('Runner', function() {
     it('should emit a helpful message when failed with a string', function(done) {
       var test = new Test('helpful test', noop);
       var err = 'string';
-      runner.on('fail', function(test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(test, err) {
         expect(
           err.message,
           'to be',
@@ -267,7 +268,7 @@ describe('Runner', function() {
     it('should emit a the error when failed with an Error instance', function(done) {
       var test = new Test('a test', noop);
       var err = new Error('an error message');
-      runner.on('fail', function(test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(test, err) {
         expect(err.message, 'to be', 'an error message');
         done();
       });
@@ -277,7 +278,7 @@ describe('Runner', function() {
     it('should emit the error when failed with an Error-like object', function(done) {
       var test = new Test('a test', noop);
       var err = {message: 'an error message'};
-      runner.on('fail', function(test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(test, err) {
         expect(err.message, 'to be', 'an error message');
         done();
       });
@@ -287,7 +288,7 @@ describe('Runner', function() {
     it('should emit a helpful message when failed with an Object', function(done) {
       var test = new Test('a test', noop);
       var err = {x: 1};
-      runner.on('fail', function(test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(test, err) {
         expect(
           err.message,
           'to be',
@@ -301,7 +302,7 @@ describe('Runner', function() {
     it('should emit a helpful message when failed with an Array', function(done) {
       var test = new Test('a test', noop);
       var err = [1, 2];
-      runner.on('fail', function(test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(test, err) {
         expect(
           err.message,
           'to be',
@@ -324,7 +325,7 @@ describe('Runner', function() {
       });
       var test = new Test('a test', noop);
 
-      runner.on('fail', function(test, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(test, err) {
         expect(err.message, 'to be', 'not evil');
         done();
       });
@@ -365,7 +366,7 @@ describe('Runner', function() {
     it('should emit "fail"', function(done) {
       var hook = new Hook();
       var err = {};
-      runner.on('fail', function(hook, err) {
+      runner.on(constants.RUNNER_EVENT_FAIL, function(hook, err) {
         expect(hook, 'to be', hook);
         expect(err, 'to be', err);
         done();
@@ -377,7 +378,7 @@ describe('Runner', function() {
       var hook = new Hook();
       var err = {};
       suite.bail(false);
-      runner.on('end', function() {
+      runner.on(constants.RUNNER_EVENT_END, function() {
         throw new Error('"end" was emit, but the bail is false');
       });
       runner.failHook(hook, err);
@@ -400,7 +401,7 @@ describe('Runner', function() {
       suite.retries(retries);
       suite.addTest(test);
 
-      runner.on('retry', function(testClone, testErr) {
+      runner.on(constants.RUNNER_EVENT_RETRY, function(testClone, testErr) {
         retryableFails += 1;
         expect(testClone.title, 'to be', test.title);
         expect(testErr, 'to be', err);
@@ -458,7 +459,7 @@ describe('Runner', function() {
         // Fake stack-trace
         err.stack = stack.join('\n');
 
-        runner.on('fail', function(hook, err) {
+        runner.on(constants.RUNNER_EVENT_FAIL, function(hook, err) {
           expect(err.stack, 'to be', stack.slice(0, 3).join('\n'));
           done();
         });
@@ -481,7 +482,7 @@ describe('Runner', function() {
         // Add --stack-trace option
         runner.fullStackTrace = true;
 
-        runner.on('fail', function(hook, err) {
+        runner.on(constants.RUNNER_EVENT_FAIL, function(hook, err) {
           expect(err.stack, 'to be', stack.join('\n'));
           done();
         });
