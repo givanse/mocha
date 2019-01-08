@@ -1,9 +1,11 @@
+# Jekyll config
+
 url: https://mochajs.org
 exclude:
   - README.md
   - .*
   - LICENSE*
+  - api-tutorials
   - API.md
 repository: mochajs/mocha
 source: docs
-
